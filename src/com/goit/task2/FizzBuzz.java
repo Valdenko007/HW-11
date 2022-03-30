@@ -15,85 +15,121 @@ package com.goit.task2;
 
 */
 
-import java.util.StringJoiner;
 
 public class FizzBuzz {
-    static int n = 15;
-    static int[] array;
-    static String[] result;
-    static StringJoiner joiner = new StringJoiner(", ");
+    private static final Object M = new Object();
+    private static int n = 1;
+
 
     public static void main(String[] args) {
-        generateArrOfNum(n);
-
-        Thread A =  new Thread(() -> fizz(array, result));
-        Thread B = new Thread(() -> buzz(array, result));
-        Thread C = new Thread(() -> fizzbuzz(array, result));
-        Thread D = new Thread(() -> number(array, result));
+        int number = 15;
+        Thread A = new Thread(() -> fizz(number));
+        Thread B = new Thread(() -> buzz(number));
+        Thread C = new Thread(() -> fizzbuzz(number));
+        Thread D = new Thread(() -> number(number));
 
         A.start();
         B.start();
         C.start();
         D.start();
-
-        try {
-            A.join();
-            B.join();
-            C.join();
-            D.join();
-        } catch (InterruptedException e) {
-            System.out.println(e.getMessage());
-        }
-
-        for (String s:result) {
-            joiner.add(s);
-        }
-
-        System.out.println(joiner.toString());
     }
 
-    public static void generateArrOfNum(int n){
-        array = new int[n];
-        result = new String[n];
-        for (int i = 0; i < n; i++) {
-            array[i] = i+1;
+    private static void fizz(int number) {
+        synchronized (M) {
+            try {
+                M.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
+        do {
+            if (n % 3 == 0 & n % 5 != 0) {
+                System.out.print("fizz ");
+                synchronized (M) {
+                    n++;
+                    try {
+                        M.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                synchronized (M) {
+                    M.notifyAll();
+                }
+            }
+        } while (n <= number);
     }
 
-    public static void fizz(int[] array, String[] result){
-        for (int i = 0; i < array.length; i++) {
-            int temp = array[i];
-            if (temp%3==0 && temp%5!=0){
-                result[i] = "fizz";
+    private static void buzz(int number) {
+        synchronized (M) {
+            try {
+                M.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        do {
+            if (n % 5 == 0 & n % 3 != 0) {
+                System.out.print("buzz ");
+                synchronized (M) {
+                    n++;
+                    try {
+                        M.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                synchronized (M) {
+                    M.notifyAll();
+                }
+            }
+        } while (n <= number);
+    }
+
+    private static void fizzbuzz(int number) {
+        synchronized (M) {
+            try {
+                M.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        while(true) {
+            if (n % 3 == 0 & n % 5 == 0) {
+                System.out.print("fizzbuzz ");
+                synchronized (M) {
+                    n++;
+                    try {
+                        M.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                synchronized (M) {
+                    M.notifyAll();
+                }
+                if (n > number) {
+                    break;
+                }
             }
         }
     }
 
-    public static void buzz(int[] array, String[] result){
-        for (int i = 0; i < array.length; i++){
-            int temp = array[i];
-            if(temp%3!=0 && temp%5==0){
-                result[i] = "buzz";
+    private static void number(int number) {
+        do {
+            if (n % 3 != 0 & n % 5 != 0) {
+                System.out.print(n + " ");
+                synchronized (M) {
+                    n++;
+                }
+            } else {
+                synchronized (M) {
+                    M.notifyAll();
+                }
             }
-        }
-    }
-
-    public static void fizzbuzz(int[] array, String[] result){
-        for (int i = 0; i < array.length; i++) {
-            int temp = array[i];
-            if (temp%3==0 && temp%5==0){
-                result[i] = "fizzbuzz";
-            }
-        }
-    }
-
-    public static void number(int[] array, String[] result){
-        for (int i = 0; i < array.length; i++) {
-            int temp = array[i];
-            if (temp%3!=0 && temp%5!=0){
-                result[i] = String.valueOf(temp);
-
-            }
-        }
+        } while (n <= number);
     }
 }
